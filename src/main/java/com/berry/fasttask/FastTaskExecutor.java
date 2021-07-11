@@ -41,9 +41,11 @@ public final class FastTaskExecutor {
         DagGraphManager dagGraphManager = new DagGraphManager(dataContext);
         MutableGraph<AbstractTask> dagGraph = dagGraphManager.getDagGraph();
         tasks.forEach(dagGraph::addNode);
-        Map<String, List<String>> collect = tasks.stream().collect(Collectors.toMap(AbstractTask::getId, AbstractTask::getDependencies));
+        Map<String, List<String>> taskIdWithDependenciesMap = tasks.stream()
+                .filter(s -> null != s.getDependencies() && !s.getDependencies().isEmpty())
+                .collect(Collectors.toMap(AbstractTask::getId, AbstractTask::getDependencies));
         Map<AbstractTask, List<AbstractTask>> nodeMap = new HashMap<>(16);
-        collect.forEach((k, v) -> tasks.stream().filter(s -> s.getId().equals(k)).findFirst()
+        taskIdWithDependenciesMap.forEach((k, v) -> tasks.stream().filter(s -> s.getId().equals(k)).findFirst()
                 .ifPresent(task -> nodeMap.putIfAbsent(task, tasks.stream().filter(t -> v.contains(t.getId())).collect(Collectors.toList()))));
         nodeMap.forEach((nodeU, nodeVs) -> nodeVs.forEach(nodeV -> dagGraph.putEdge(nodeV, nodeU)));
         return dagGraphManager;
