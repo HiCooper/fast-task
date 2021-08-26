@@ -57,8 +57,6 @@ public final class DagGraphManager {
             zeroInNodeList.forEach(task -> {
                 if (task.getStatus().equals(AbstractTask.TaskStatus.READY)) {
                     threadPoolExecutor.execute(() -> doJob(task));
-                } else {
-                    removeTask(task);
                 }
             });
         }
@@ -66,6 +64,7 @@ public final class DagGraphManager {
 
     /**
      * 获取 0 入度 节点 list
+     *
      * @return Set Nodes
      */
     private Set<AbstractTask> getZeroInNodeList() {
@@ -77,6 +76,7 @@ public final class DagGraphManager {
 
     /**
      * 指定节点
+     *
      * @param task task
      */
     private void doJob(AbstractTask task) {
@@ -89,6 +89,7 @@ public final class DagGraphManager {
                 task.setStatus(AbstractTask.TaskStatus.RUNNING);
                 task.doRun(dataContext);
                 task.setStatus(AbstractTask.TaskStatus.DONE);
+                removeTask(task);
                 // doJob done
                 if (logger.isDebugEnabled()) {
                     logger.info("task done: {}", task.getId());
@@ -99,7 +100,6 @@ public final class DagGraphManager {
                 dataContext.getExecuteErrorLog().put(task.getId(), e.getMessage());
             } finally {
                 // doJob after
-                removeTask(task);
                 this.stateChange = true;
             }
         }
@@ -107,6 +107,7 @@ public final class DagGraphManager {
 
     /**
      * 移除节点
+     *
      * @param task 节点
      */
     private void removeTask(AbstractTask task) {
@@ -117,9 +118,10 @@ public final class DagGraphManager {
 
     /**
      * 图是否执行完成
+     *
      * @return true or false
      */
     private boolean isDone() {
-        return getZeroInNodeList().isEmpty();
+        return getZeroInNodeList().isEmpty() || getZeroInNodeList().stream().allMatch(s -> s.getStatus().equals(AbstractTask.TaskStatus.FAIL));
     }
 }

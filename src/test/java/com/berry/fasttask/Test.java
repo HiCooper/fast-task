@@ -36,6 +36,11 @@ public class Test {
         }
     }
 
+    @org.junit.jupiter.api.Test
+    public void doJob() {
+        test();
+    }
+
     public void test() {
         List<TestTask> testTaskList = new ArrayList<>();
         TestTask task1 = new TestTask("任务1", "1", Lists.newArrayList(""));
@@ -60,7 +65,6 @@ public class Test {
         long end = System.currentTimeMillis();
         logger.info("all take time: {} ms",  (end - start));
         logger.info("dataContext: {}", new Gson().toJson(dataContext));
-        logger.info("task8: {}", new Gson().toJson(task8.getData()));
     }
 
     public static class TestTask extends AbstractTask {
@@ -83,9 +87,12 @@ public class Test {
         public void doAction(DataContext dataContext) {
             long start = System.currentTimeMillis();
             try {
+                Thread.sleep(new Random().nextInt(3000));
+                if (new Random().nextInt(11) > 9) {
+                    throw new RuntimeException("some thing bad..." + getId());
+                }
                 // do something amazing
                 dataContext.getData().put(getId(), getName());
-                Thread.sleep(new Random().nextInt(3000));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
