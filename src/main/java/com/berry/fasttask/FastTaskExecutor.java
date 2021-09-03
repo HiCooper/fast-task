@@ -48,6 +48,7 @@ public final class FastTaskExecutor {
         taskIdWithDependenciesMap.forEach((k, v) -> tasks.stream().filter(s -> s.getId().equals(k)).findFirst()
                 .ifPresent(task -> nodeMap.putIfAbsent(task, tasks.stream().filter(t -> v.contains(t.getId())).collect(Collectors.toList()))));
         nodeMap.forEach((nodeU, nodeVs) -> nodeVs.forEach(nodeV -> dagGraph.putEdge(nodeV, nodeU)));
+        GraphPrintUtil.print(dagGraph);
         return dagGraphManager;
     }
 }

@@ -14,6 +14,8 @@ import java.util.Objects;
  */
 public abstract class AbstractTask {
 
+    private boolean visited;
+
     /**
      * 任务执行后的返回数据
      */
@@ -28,6 +30,14 @@ public abstract class AbstractTask {
      * 任务执行状态，默认就绪
      */
     private volatile TaskStatus status = TaskStatus.READY;
+
+    public boolean isVisited() {
+        return visited;
+    }
+
+    public void setVisited(boolean visited) {
+        this.visited = visited;
+    }
 
     public TaskStatus getStatus() {
         synchronized (this) {
