@@ -82,7 +82,7 @@ public final class DagGraphManager {
             // doJob before
             try {
                 if (logger.isDebugEnabled()) {
-                    logger.info("task start: {}", task.getId());
+                    logger.debug("task start: {}", task.getId());
                 }
                 task.setStatus(AbstractTask.TaskStatus.RUNNING);
                 task.doRun(dataContext);
@@ -90,7 +90,7 @@ public final class DagGraphManager {
                 removeTask(task);
                 // doJob done
                 if (logger.isDebugEnabled()) {
-                    logger.info("task done: {}", task.getId());
+                    logger.debug("task done: {}", task.getId());
                 }
             } catch (Exception e) {
                 logger.error("do task: {} fail, ", task.getId(), e);
