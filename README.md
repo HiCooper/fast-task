@@ -1,6 +1,6 @@
 # fast-task
-DAG任务编排执行
 
+DAG任务编排执行
 
 ### 创建一个任务
 
@@ -8,6 +8,7 @@ DAG任务编排执行
 - 初始化任务实例，设置任务唯一标识taskId（必须），任务名称（非必须），任务依赖其他任务taskId（非必须）
 
 example
+
 ````
 public static class TestTask extends AbstractTask {
 
@@ -46,8 +47,8 @@ public static class TestTask extends AbstractTask {
     }
 ````
 
-
 ### 开始执行任务
+
 sample graph
 
 ![示例任务图](./doc/sample.png)
@@ -146,7 +147,6 @@ BUILD SUCCESSFUL in 13s
 
 
 ````
-
 
 Print Graph
 

@@ -80,28 +80,11 @@ public class GraphPrintUtil {
 
     private static class Line {
 
-        private static final String GAP = " ";
-
         Map<String, Node> nodesMap = new HashMap<>();
 
         public void print() {
             List<Node> nodes = new ArrayList<>(nodesMap.values());
             printNodes(nodes);
-        }
-
-        public void addPrefix(String key, int prefixLength) {
-            if (key == null || prefixLength == 0) {
-                return;
-            }
-            Node node = nodesMap.get(key);
-            if (node == null) {
-                return;
-            }
-            StringBuilder appendPrefix = new StringBuilder();
-            for (int i = 0; i < prefixLength; i++) {
-                appendPrefix.append(GAP);
-            }
-            node.setPrefix(node.prefix + appendPrefix);
         }
 
         private void printNodes(List<Node> nodes) {
@@ -118,16 +101,15 @@ public class GraphPrintUtil {
 
     private static class Node {
 
+        private String id;
+        private String prefix = " ";
+        private String suffix = " ";
+        private String data;
+
         Node(String id, String data) {
             this.id = id;
             this.data = data;
         }
-
-        private String id;
-        private String prefix = " ";
-        private String suffix = " ";
-
-        private String data;
 
         public String getId() {
             return id;

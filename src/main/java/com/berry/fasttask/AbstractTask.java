@@ -14,22 +14,23 @@ import java.util.Objects;
  */
 public abstract class AbstractTask {
 
-    private boolean visited;
-
-    /**
-     * 任务执行后的返回数据
-     */
-    private Object data;
-
     /**
      * 每一个任务都有唯一的ID
      */
     private final String taskId;
-
+    private boolean visited;
+    /**
+     * 任务执行后的返回数据
+     */
+    private Object data;
     /**
      * 任务执行状态，默认就绪
      */
     private volatile TaskStatus status = TaskStatus.READY;
+
+    AbstractTask(String taskId) {
+        this.taskId = taskId;
+    }
 
     public boolean isVisited() {
         return visited;
@@ -54,11 +55,6 @@ public abstract class AbstractTask {
     public Object getData() {
         return data;
     }
-
-    AbstractTask(String taskId) {
-        this.taskId = taskId;
-    }
-
 
     /**
      * 节点唯一ID

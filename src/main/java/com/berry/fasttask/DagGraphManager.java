@@ -26,7 +26,10 @@ public final class DagGraphManager {
      * 核心 Map<String, Object> data, key 为 task 唯一 id
      */
     private final DataContext dataContext;
-
+    /**
+     * 初始化 构建有向无环图
+     */
+    private final MutableGraph<AbstractTask> dagGraph = GraphBuilder.directed().allowsSelfLoops(false).build();
     /**
      * 任务执行状态改变
      * 如有任何一个任务完成 =》 set true
@@ -37,11 +40,6 @@ public final class DagGraphManager {
     public DagGraphManager(DataContext dataContext) {
         this.dataContext = dataContext;
     }
-
-    /**
-     * 初始化 构建有向无环图
-     */
-    private final MutableGraph<AbstractTask> dagGraph = GraphBuilder.directed().allowsSelfLoops(false).build();
 
     public MutableGraph<AbstractTask> getDagGraph() {
         return this.dagGraph;
