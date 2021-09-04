@@ -147,4 +147,17 @@ BUILD SUCCESSFUL in 13s
 
 ````
 
+
+Print Graph
+
+````log
+==================================== Graph ====================================
+ (1:READY)  (6:READY) 
+ (2:READY,1)  (3:READY,1)  (9:READY,6)  (10:READY,6) 
+ (11:READY,9)  (12:READY,10)  (4:READY,2)  (5:READY,3,9) 
+ (13:READY,4,10)  (14:READY,11,12)  (7:READY,5) 
+ (8:READY,6,7) 
+==================================== Graph ====================================
+````
+
 More detail @see com/berry/fasttask/Test.java
