@@ -18,6 +18,9 @@ public class GraphPrintUtil {
 
 
     public static void print(MutableGraph<AbstractTask> dagGraph) {
+
+        System.out.println("==================================== Graph ====================================");
+
         List<AbstractTask> rootNodes = dagGraph.nodes().stream().filter(s -> s != null && dagGraph.inDegree(s) == 0).collect(Collectors.toList());
 
         List<Line> lines = new ArrayList<>();
@@ -27,6 +30,8 @@ public class GraphPrintUtil {
         resetLines(lines);
 
         lines.forEach(Line::print);
+
+        System.out.println("==================================== Graph ====================================");
     }
 
     private static void resetLines(List<Line> lines) {
@@ -73,7 +78,7 @@ public class GraphPrintUtil {
         return String.format("(%s:%s%s)", r.getId(), r.getStatus().name(), join);
     }
 
-    public static class Line {
+    private static class Line {
 
         private static final String GAP = " ";
 
@@ -111,7 +116,7 @@ public class GraphPrintUtil {
         }
     }
 
-    public static class Node {
+    private static class Node {
 
         Node(String id, String data) {
             this.id = id;
