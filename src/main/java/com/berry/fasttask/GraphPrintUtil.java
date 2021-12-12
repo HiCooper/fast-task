@@ -1,9 +1,15 @@
 package com.berry.fasttask;
 
-import com.google.common.graph.MutableGraph;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.google.common.graph.MutableGraph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,23 +21,30 @@ import java.util.stream.Collectors;
  * Use：
  */
 public class GraphPrintUtil {
-
+    private static final Logger logger = LoggerFactory.getLogger(GraphPrintUtil.class);
 
     public static void print(MutableGraph<AbstractTask> dagGraph) {
+        Set<AbstractTask> nodes = dagGraph.nodes();
 
-        System.out.println("==================================== Graph ====================================");
+        logger.info("==================================== Fast Task Graph({}) ====================================",
+            nodes.size());
 
-        List<AbstractTask> rootNodes = dagGraph.nodes().stream().filter(s -> s != null && dagGraph.inDegree(s) == 0).collect(Collectors.toList());
+        if (!nodes.isEmpty()) {
+            List<AbstractTask> rootNodes = dagGraph.nodes().stream().filter(s -> s != null && dagGraph.inDegree(s) == 0)
+                .collect(Collectors.toList());
 
-        List<Line> lines = new ArrayList<>();
+            List<Line> lines = new ArrayList<>();
 
-        process(dagGraph, rootNodes, lines);
+            process(dagGraph, rootNodes, lines);
 
-        resetLines(lines);
+            resetLines(lines);
 
-        lines.forEach(Line::print);
+            lines.forEach(Line::print);
+        } else {
+            logger.info("All Done.");
+        }
 
-        System.out.println("==================================== Graph ====================================");
+        logger.info("==================================== Fast Task Graph ====================================");
     }
 
     private static void resetLines(List<Line> lines) {
@@ -65,7 +78,7 @@ public class GraphPrintUtil {
             nextLineNodes.addAll(successors);
         }
         lines.add(line);
-        if (nextLineNodes.size() > 0) {
+        if (!nextLineNodes.isEmpty()) {
             process(dagGraph, nextLineNodes, lines);
         }
     }
@@ -88,14 +101,14 @@ public class GraphPrintUtil {
         }
 
         private void printNodes(List<Node> nodes) {
-            if (nodes == null || nodes.size() == 0) {
+            if (nodes == null || nodes.isEmpty()) {
                 return;
             }
             StringBuilder lineStr = new StringBuilder();
             for (Node node : nodes) {
                 lineStr.append(node.prefix).append(node.data).append(node.suffix);
             }
-            System.out.println(lineStr);
+            logger.info(lineStr.toString());
         }
     }
 

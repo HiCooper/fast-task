@@ -1,13 +1,13 @@
 package com.berry.fasttask;
 
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
+
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.stream.Collectors;
 
 /**
  * Created with IntelliJ IDEA.
@@ -79,8 +79,8 @@ public final class DagGraphManager {
      */
     private void doJob(AbstractTask task) {
         if (task.getStatus().equals(AbstractTask.TaskStatus.READY)) {
-            // doJob before
             try {
+                // doJob before
                 if (logger.isDebugEnabled()) {
                     logger.debug("task start: {}", task.getId());
                 }
@@ -120,6 +120,7 @@ public final class DagGraphManager {
      * @return true or false
      */
     private boolean isDone() {
-        return getZeroInNodeList().isEmpty() || getZeroInNodeList().stream().allMatch(s -> s.getStatus().equals(AbstractTask.TaskStatus.FAIL));
+        return getZeroInNodeList().isEmpty() || getZeroInNodeList().stream().allMatch(
+            s -> s.getStatus().equals(AbstractTask.TaskStatus.FAIL));
     }
 }

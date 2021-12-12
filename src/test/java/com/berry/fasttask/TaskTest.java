@@ -1,15 +1,20 @@
 package com.berry.fasttask;
 
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.gson.Gson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.gson.Gson;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,23 +25,24 @@ import java.util.concurrent.*;
  * fileName：Test
  * Use：test fast task
  */
-public class Test {
-    private static final Logger logger = LoggerFactory.getLogger(Test.class);
+public class TaskTest {
+    private static final Logger logger = LoggerFactory.getLogger(TaskTest.class);
 
-    private static final ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("thread-pool-%d").build();
+    private static final ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("thread-pool-%d")
+        .build();
     //Common Thread Pool
     private static final ExecutorService threadPoolExecutor = new ThreadPoolExecutor(8, 32,
-            500L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
+        500L, TimeUnit.MILLISECONDS,
+        new LinkedBlockingQueue<>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
 
-    @org.junit.jupiter.api.Test
+    @Test
     public void repeat() {
         for (int i = 0; i < 10; i++) {
             test();
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     public void doJob() {
         test();
     }
@@ -100,16 +106,16 @@ public class Test {
             long start = System.currentTimeMillis();
             try {
                 Thread.sleep(new Random().nextInt(3000));
-//                if (new Random().nextInt(11) > 9) {
-//                    throw new RuntimeException("some thing bad..." + getId());
-//                }
+                if (new Random().nextInt(11) > 9) {
+                    throw new RuntimeException("some thing bad..." + getId());
+                }
                 // do something amazing
                 dataContext.getData().put(getId(), getName());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             long end = System.currentTimeMillis();
-            logger.info("take time: {} ms", (end - start));
+            logger.info("{} take time: {} ms", getId(), (end - start));
         }
 
         @Override

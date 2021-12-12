@@ -1,12 +1,12 @@
 package com.berry.fasttask;
 
-import com.google.common.graph.MutableGraph;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
+
+import com.google.common.graph.MutableGraph;
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,9 +25,11 @@ public final class FastTaskExecutor {
      * @param testTaskList       task
      * @param threadPoolExecutor threadPoolExecutor
      */
-    public static void execute(List<? extends AbstractTask> testTaskList, DataContext dataContext, ExecutorService threadPoolExecutor) {
+    public static void execute(List<? extends AbstractTask> testTaskList, DataContext dataContext,
+        ExecutorService threadPoolExecutor) {
         DagGraphManager dagGraphManager = buildDagGraphManager(testTaskList, dataContext);
         dagGraphManager.executeTask(threadPoolExecutor);
+        GraphPrintUtil.print(dagGraphManager.getDagGraph());
     }
 
     /**
@@ -42,11 +44,12 @@ public final class FastTaskExecutor {
         MutableGraph<AbstractTask> dagGraph = dagGraphManager.getDagGraph();
         tasks.forEach(dagGraph::addNode);
         Map<String, List<String>> taskIdWithDependenciesMap = tasks.stream()
-                .filter(s -> null != s.getDependencies() && !s.getDependencies().isEmpty())
-                .collect(Collectors.toMap(AbstractTask::getId, AbstractTask::getDependencies));
+            .filter(s -> null != s.getDependencies() && !s.getDependencies().isEmpty())
+            .collect(Collectors.toMap(AbstractTask::getId, AbstractTask::getDependencies));
         Map<AbstractTask, List<AbstractTask>> nodeMap = new HashMap<>(16);
         taskIdWithDependenciesMap.forEach((k, v) -> tasks.stream().filter(s -> s.getId().equals(k)).findFirst()
-                .ifPresent(task -> nodeMap.putIfAbsent(task, tasks.stream().filter(t -> v.contains(t.getId())).collect(Collectors.toList()))));
+            .ifPresent(task -> nodeMap.putIfAbsent(task,
+                tasks.stream().filter(t -> v.contains(t.getId())).collect(Collectors.toList()))));
         nodeMap.forEach((nodeU, nodeVs) -> nodeVs.forEach(nodeV -> dagGraph.putEdge(nodeV, nodeU)));
         GraphPrintUtil.print(dagGraph);
         return dagGraphManager;

@@ -95,7 +95,7 @@ public abstract class AbstractTask {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractTask that = (AbstractTask) o;
+        AbstractTask that = (AbstractTask)o;
         return taskId.equals(that.taskId);
     }
 
@@ -104,11 +104,13 @@ public abstract class AbstractTask {
         return Objects.hash(taskId);
     }
 
-
     public enum TaskStatus {
         /**
          * 就绪，运行，失败，完成
          */
-        READY, RUNNING, FAIL, DONE;
+        READY,
+        RUNNING,
+        FAIL,
+        DONE;
     }
 }
