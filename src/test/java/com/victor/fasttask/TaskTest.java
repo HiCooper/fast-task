@@ -1,4 +1,4 @@
-package com.berry.fasttask;
+package com.victor.fasttask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,37 +17,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created with IntelliJ IDEA.
- *
- * @author HiCooper.
- * @version 1.0
+ * @author Victor.
  * @date 2021/6/18
- * fileName：Test
- * Use：test fast task
+ * test fast task
  */
-public class TaskTest {
+class TaskTest {
     private static final Logger logger = LoggerFactory.getLogger(TaskTest.class);
 
     private static final ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("thread-pool-%d")
-        .build();
+            .build();
     //Common Thread Pool
     private static final ExecutorService threadPoolExecutor = new ThreadPoolExecutor(8, 32,
-        500L, TimeUnit.MILLISECONDS,
-        new LinkedBlockingQueue<>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
+            500L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
 
     @Test
-    public void repeat() {
+    void repeat() {
         for (int i = 0; i < 10; i++) {
             test();
         }
     }
 
     @Test
-    public void doJob() {
+    void doJob() {
         test();
     }
 
-    public void test() {
+    void test() {
         List<TestTask> testTaskList = new ArrayList<>();
         TestTask task1 = new TestTask("任务1", "1", Lists.newArrayList());
         TestTask task2 = new TestTask("任务2", "2", Lists.newArrayList("1"));

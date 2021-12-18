@@ -1,16 +1,13 @@
-package com.berry.fasttask;
+package com.victor.fasttask;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created with IntelliJ IDEA.
- *
- * @author HiCooper.
- * @version 1.0
+ * @author Victor.
  * @date 2021/6/18
- * fileName：DataContext
- * Use：任务执行结果上下文
+ * <p>
+ * 任务执行结果上下文
  */
 public final class DataContext {
 

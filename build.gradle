@@ -2,8 +2,8 @@ plugins {
     id 'java'
 }
 
-group 'com.berry'
-version '1.0-SNAPSHOT'
+group 'com.victor'
+version '1.0'
 
 repositories {
     mavenCentral()
@@ -12,11 +12,11 @@ repositories {
 dependencies {
 
     // https://mvnrepository.com/artifact/ch.qos.logback/logback-core
-    implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.7'
+    implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.8'
     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.7'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.8'
     // https://mvnrepository.com/artifact/ch.qos.logback/logback-access
-    implementation group: 'ch.qos.logback', name: 'logback-access', version: '1.2.7'
+    implementation group: 'ch.qos.logback', name: 'logback-access', version: '1.2.8'
 
     // https://mvnrepository.com/artifact/com.google.guava/guava
     implementation group: 'com.google.guava', name: 'guava', version: '31.0.1-jre'

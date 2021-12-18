@@ -1,16 +1,11 @@
-package com.berry.fasttask;
+package com.victor.fasttask;
 
 import java.util.List;
 import java.util.Objects;
 
 /**
- * Created with IntelliJ IDEA.
- *
- * @author HiCooper.
- * @version 1.0
+ * @author Victor.
  * @date 2021/6/18
- * fileName：AbstractTask
- * Use：
  */
 public abstract class AbstractTask {
 
@@ -95,7 +90,7 @@ public abstract class AbstractTask {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractTask that = (AbstractTask)o;
+        AbstractTask that = (AbstractTask) o;
         return taskId.equals(that.taskId);
     }
 

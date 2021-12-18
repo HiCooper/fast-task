@@ -1,4 +1,4 @@
-package com.berry.fasttask;
+package com.victor.fasttask;
 
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -10,13 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created with IntelliJ IDEA.
- *
- * @author HiCooper.
- * @version 1.0
+ * @author Victor.
  * @date 2021/6/19
- * fileName：DagGraph
- * Use：
  */
 public final class DagGraphManager {
     private static final Logger logger = LoggerFactory.getLogger(DagGraphManager.class);
@@ -121,6 +116,6 @@ public final class DagGraphManager {
      */
     private boolean isDone() {
         return getZeroInNodeList().isEmpty() || getZeroInNodeList().stream().allMatch(
-            s -> s.getStatus().equals(AbstractTask.TaskStatus.FAIL));
+                s -> s.getStatus().equals(AbstractTask.TaskStatus.FAIL));
     }
 }

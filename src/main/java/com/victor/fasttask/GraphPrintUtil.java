@@ -1,4 +1,4 @@
-package com.berry.fasttask;
+package com.victor.fasttask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,13 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created with IntelliJ IDEA.
- *
- * @author HiCooper.
- * @version 1.0
+ * @author Victor.
  * @date 2021/9/3
- * fileName：GraphPrintUtil
- * Use：
  */
 public class GraphPrintUtil {
     private static final Logger logger = LoggerFactory.getLogger(GraphPrintUtil.class);
@@ -27,11 +22,11 @@ public class GraphPrintUtil {
         Set<AbstractTask> nodes = dagGraph.nodes();
 
         logger.info("==================================== Fast Task Graph({}) ====================================",
-            nodes.size());
+                nodes.size());
 
         if (!nodes.isEmpty()) {
             List<AbstractTask> rootNodes = dagGraph.nodes().stream().filter(s -> s != null && dagGraph.inDegree(s) == 0)
-                .collect(Collectors.toList());
+                    .collect(Collectors.toList());
 
             List<Line> lines = new ArrayList<>();
 
