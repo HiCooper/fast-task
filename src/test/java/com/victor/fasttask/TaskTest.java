@@ -32,33 +32,47 @@ class TaskTest {
             new LinkedBlockingQueue<>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
 
     @Test
-    void repeat() {
-        for (int i = 0; i < 10; i++) {
-            test();
-        }
+    void testBindJob() {
+        TestTask task1 = new TestTask("任务1", "1", Lists.newArrayList(), true);
+        TestTask task2 = new TestTask("任务2", "2", Lists.newArrayList("1"), true);
+        TestTask task3 = new TestTask("任务3", "3", Lists.newArrayList("2"), true);
+        TestTask task4 = new TestTask("任务4", "4", Lists.newArrayList("3"), true);
+        TestTask task5 = new TestTask("任务5", "5", Lists.newArrayList("4"), true);
+        TestTask task6 = new TestTask("任务6", "6", Lists.newArrayList("5"), true);
+
+        List<TestTask> testTaskList = new ArrayList<>();
+        testTaskList.add(task1);
+        testTaskList.add(task2);
+        testTaskList.add(task3);
+        testTaskList.add(task4);
+        testTaskList.add(task5);
+        testTaskList.add(task6);
+
+        DataContext dataContext = new DataContext();
+        long start = System.currentTimeMillis();
+        FastTaskExecutor.execute(testTaskList, dataContext, threadPoolExecutor);
+        long end = System.currentTimeMillis();
+        logger.info("total take time: {} ms", (end - start));
+        logger.info("dataContext: {}", new Gson().toJson(dataContext));
     }
 
     @Test
-    void doJob() {
-        test();
-    }
-
     void test() {
         List<TestTask> testTaskList = new ArrayList<>();
-        TestTask task1 = new TestTask("任务1", "1", Lists.newArrayList());
-        TestTask task2 = new TestTask("任务2", "2", Lists.newArrayList("1"));
-        TestTask task3 = new TestTask("任务3", "3", Lists.newArrayList("1"));
-        TestTask task4 = new TestTask("任务4", "4", Lists.newArrayList("2"));
-        TestTask task5 = new TestTask("任务5", "5", Lists.newArrayList("3", "9"));
-        TestTask task6 = new TestTask("任务6", "6", Lists.newArrayList());
-        TestTask task7 = new TestTask("任务7", "7", Lists.newArrayList("5"));
-        TestTask task8 = new TestTask("任务8", "8", Lists.newArrayList("6", "7"));
-        TestTask task9 = new TestTask("任务9", "9", Lists.newArrayList("6"));
-        TestTask task10 = new TestTask("任务10", "10", Lists.newArrayList("6"));
-        TestTask task11 = new TestTask("任务11", "11", Lists.newArrayList("9"));
-        TestTask task12 = new TestTask("任务12", "12", Lists.newArrayList("10"));
-        TestTask task13 = new TestTask("任务13", "13", Lists.newArrayList("4", "10"));
-        TestTask task14 = new TestTask("任务14", "14", Lists.newArrayList("11", "12"));
+        TestTask task1 = new TestTask("任务1", "1", Lists.newArrayList(), true);
+        TestTask task2 = new TestTask("任务2", "2", Lists.newArrayList("1"), true);
+        TestTask task3 = new TestTask("任务3", "3", Lists.newArrayList("1"), false);
+        TestTask task4 = new TestTask("任务4", "4", Lists.newArrayList("2"), true);
+        TestTask task5 = new TestTask("任务5", "5", Lists.newArrayList("3", "9"), true);
+        TestTask task6 = new TestTask("任务6", "6", Lists.newArrayList(), true);
+        TestTask task7 = new TestTask("任务7", "7", Lists.newArrayList("5"), true);
+        TestTask task8 = new TestTask("任务8", "8", Lists.newArrayList("6", "7"), true);
+        TestTask task9 = new TestTask("任务9", "9", Lists.newArrayList("6"), true);
+        TestTask task10 = new TestTask("任务10", "10", Lists.newArrayList("6"), true);
+        TestTask task11 = new TestTask("任务11", "11", Lists.newArrayList("9"), true);
+        TestTask task12 = new TestTask("任务12", "12", Lists.newArrayList("10"), true);
+        TestTask task13 = new TestTask("任务13", "13", Lists.newArrayList("4", "10"), true);
+        TestTask task14 = new TestTask("任务14", "14", Lists.newArrayList("11", "12"), true);
         testTaskList.add(task1);
         testTaskList.add(task2);
         testTaskList.add(task3);
@@ -87,8 +101,8 @@ class TaskTest {
 
         private final String name;
 
-        public TestTask(String name, String taskId, List<String> dependencies) {
-            super(taskId);
+        public TestTask(String name, String taskId, List<String> dependencies, boolean failContinue) {
+            super(taskId, failContinue);
             this.name = name;
             this.dependencies = dependencies;
         }
@@ -102,9 +116,9 @@ class TaskTest {
             long start = System.currentTimeMillis();
             try {
                 Thread.sleep(new Random().nextInt(3000));
-                if (new Random().nextInt(11) > 9) {
-                    throw new RuntimeException("some thing bad..." + getId());
-                }
+//                if (new Random().nextInt(11) > 9) {
+//                    throw new RuntimeException("some thing bad..." + getId());
+//                }
                 // do something amazing
                 dataContext.getData().put(getId(), getName());
             } catch (InterruptedException e) {

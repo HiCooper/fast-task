@@ -82,20 +82,52 @@ public final class DagGraphManager {
                 task.setStatus(AbstractTask.TaskStatus.RUNNING);
                 task.doRun(dataContext);
                 task.setStatus(AbstractTask.TaskStatus.DONE);
-                removeTask(task);
                 // doJob done
                 if (logger.isDebugEnabled()) {
                     logger.debug("task done: {}", task.getId());
                 }
+                AbstractTask nextExecutableNode = getNextExecutableNode(task);
+                if (nextExecutableNode != null) {
+                    doJob(nextExecutableNode);
+                }
+                // 移除节点
+                removeTask(task);
             } catch (Exception e) {
                 logger.error("do task: {} fail, ", task.getId(), e);
-                task.setStatus(AbstractTask.TaskStatus.FAIL);
                 dataContext.getExecuteErrorLog().put(task.getId(), e.getMessage());
+                task.setStatus(AbstractTask.TaskStatus.FAIL);
+                // 判断失败是否继续，不继续，将其他任务状态设置为cancel, 抛出异常
+                if (!task.isFailContinue()) {
+                    logger.error("do task:{} fail, failContinue=false, other task will be set cancel status, then end the graph execute!", task.getId());
+                    dagGraph.nodes().forEach(node -> node.setStatus(AbstractTask.TaskStatus.CANCEL));
+                    task.setStatus(AbstractTask.TaskStatus.FAIL);
+                    throw e;
+                }
             } finally {
                 // doJob after
-                this.stateChange = true;
+                if (task.isFailContinue()) {
+                    this.stateChange = true;
+                }
             }
         }
+    }
+
+    /**
+     * 获取下个可直接执行节点
+     * 当前节点只有一个出度，且下个节点只有一个入度，返回下个节点
+     *
+     * @param task
+     * @return
+     */
+    private AbstractTask getNextExecutableNode(AbstractTask task) {
+        Set<AbstractTask> successors = dagGraph.successors(task);
+        if (successors.size() == 1) {
+            AbstractTask nextNode = successors.stream().findFirst().orElse(null);
+            if (dagGraph.inDegree(nextNode) == 1) {
+                return nextNode;
+            }
+        }
+        return null;
     }
 
     /**
@@ -116,6 +148,6 @@ public final class DagGraphManager {
      */
     private boolean isDone() {
         return getZeroInNodeList().isEmpty() || getZeroInNodeList().stream().allMatch(
-                s -> s.getStatus().equals(AbstractTask.TaskStatus.FAIL));
+                s -> s.getStatus().equals(AbstractTask.TaskStatus.FAIL) || s.getStatus().equals(AbstractTask.TaskStatus.CANCEL));
     }
 }

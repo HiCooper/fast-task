@@ -15,6 +15,10 @@ public abstract class AbstractTask {
     private final String taskId;
     private boolean visited;
     /**
+     * 失败继续
+     */
+    private boolean failContinue;
+    /**
      * 任务执行后的返回数据
      */
     private Object data;
@@ -23,8 +27,17 @@ public abstract class AbstractTask {
      */
     private volatile TaskStatus status = TaskStatus.READY;
 
-    AbstractTask(String taskId) {
+    AbstractTask(String taskId, boolean failContinue) {
         this.taskId = taskId;
+        this.failContinue = failContinue;
+    }
+
+    public boolean isFailContinue() {
+        return failContinue;
+    }
+
+    public void setFailContinue(boolean failContinue) {
+        this.failContinue = failContinue;
     }
 
     public boolean isVisited() {
@@ -106,6 +119,7 @@ public abstract class AbstractTask {
         READY,
         RUNNING,
         FAIL,
+        CANCEL,
         DONE;
     }
 }
