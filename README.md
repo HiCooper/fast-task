@@ -3,7 +3,7 @@
 DAG任务编排执行
 
 2022-05-29 更新日志
-当一个节点只有一个出度，且出度指向节点只有一个入度，用当前线程继续执行
+当一个节点执行完，找到下游第一个只有一个入度的节点，用当前线程继续执行
 
 ### 创建一个任务
 
@@ -87,7 +87,7 @@ public void test() {
     testTaskList.add(task12);
     testTaskList.add(task13);
     testTaskList.add(task14);
-    DataContext dataContext = new Dat**aContext();
+    DataContext dataContext = new DataContext();
     long start = System.currentTimeMillis();
     FastTaskExecutor.execute(testTaskList, dataContext, threadPoolExecutor);
     long end = System.currentTimeMillis();
@@ -100,67 +100,65 @@ public void test() {
 result print
 
 ````log
-00:00:51.482 [thread-pool-1] INFO com.victor.fasttask.DagGraphManager - task start: 6
-00:00:51.482 [thread-pool-0] INFO com.victor.fasttask.DagGraphManager - task start: 1
-00:00:52.100 [thread-pool-0] INFO com.victor.fasttask.TaskTest - take time: 616 ms
-00:00:52.101 [thread-pool-0] INFO com.victor.fasttask.DagGraphManager - task done: 1
-00:00:52.102 [thread-pool-3] INFO com.victor.fasttask.DagGraphManager - task start: 3
-00:00:52.102 [thread-pool-2] INFO com.victor.fasttask.DagGraphManager - task start: 2
-00:00:52.748 [thread-pool-3] INFO com.victor.fasttask.TaskTest - take time: 646 ms
-00:00:52.749 [thread-pool-3] INFO com.victor.fasttask.DagGraphManager - task done: 3
-00:00:52.853 [thread-pool-1] INFO com.victor.fasttask.TaskTest - take time: 1369 ms
-00:00:52.853 [thread-pool-1] INFO com.victor.fasttask.DagGraphManager - task done: 6
-00:00:52.858 [thread-pool-5] INFO com.victor.fasttask.DagGraphManager - task start: 10
-00:00:52.857 [thread-pool-4] INFO com.victor.fasttask.DagGraphManager - task start: 9
-00:00:53.324 [thread-pool-4] INFO com.victor.fasttask.TaskTest - take time: 465 ms
-00:00:53.324 [thread-pool-4] INFO com.victor.fasttask.DagGraphManager - task done: 9
-00:00:53.324 [thread-pool-6] INFO com.victor.fasttask.DagGraphManager - task start: 5
-00:00:53.324 [thread-pool-7] INFO com.victor.fasttask.DagGraphManager - task start: 11
-00:00:53.709 [thread-pool-7] INFO com.victor.fasttask.TaskTest - take time: 384 ms
-00:00:53.709 [thread-pool-7] INFO com.victor.fasttask.DagGraphManager - task done: 11
-00:00:54.053 [thread-pool-2] INFO com.victor.fasttask.TaskTest - take time: 1951 ms
-00:00:54.053 [thread-pool-2] INFO com.victor.fasttask.DagGraphManager - task done: 2
-00:00:54.053 [thread-pool-0] INFO com.victor.fasttask.DagGraphManager - task start: 4
-00:00:54.827 [thread-pool-6] INFO com.victor.fasttask.TaskTest - take time: 1503 ms
-00:00:54.827 [thread-pool-6] INFO com.victor.fasttask.DagGraphManager - task done: 5
-00:00:54.827 [thread-pool-3] INFO com.victor.fasttask.DagGraphManager - task start: 7
-00:00:55.292 [thread-pool-5] INFO com.victor.fasttask.TaskTest - take time: 2434 ms
-00:00:55.292 [thread-pool-5] INFO com.victor.fasttask.DagGraphManager - task done: 10
-00:00:55.292 [thread-pool-1] INFO com.victor.fasttask.DagGraphManager - task start: 12
-00:00:56.284 [thread-pool-3] INFO com.victor.fasttask.TaskTest - take time: 1457 ms
-00:00:56.284 [thread-pool-3] INFO com.victor.fasttask.DagGraphManager - task done: 7
-00:00:56.284 [thread-pool-4] INFO com.victor.fasttask.DagGraphManager - task start: 8
-00:00:56.425 [thread-pool-0] INFO com.victor.fasttask.TaskTest - take time: 2372 ms
-00:00:56.425 [thread-pool-0] INFO com.victor.fasttask.DagGraphManager - task done: 4
-00:00:56.425 [thread-pool-7] INFO com.victor.fasttask.DagGraphManager - task start: 13
-00:00:56.578 [thread-pool-4] INFO com.victor.fasttask.TaskTest - take time: 294 ms
-00:00:56.578 [thread-pool-4] INFO com.victor.fasttask.DagGraphManager - task done: 8
-00:00:58.226 [thread-pool-1] INFO com.victor.fasttask.TaskTest - take time: 2934 ms
-00:00:58.226 [thread-pool-1] INFO com.victor.fasttask.DagGraphManager - task done: 12
-00:00:58.226 [thread-pool-2] INFO com.victor.fasttask.DagGraphManager - task start: 14
-00:00:58.325 [thread-pool-7] INFO com.victor.fasttask.TaskTest - take time: 1900 ms
-00:00:58.325 [thread-pool-7] INFO com.victor.fasttask.DagGraphManager - task done: 13
-00:00:59.324 [thread-pool-2] INFO com.victor.fasttask.TaskTest - take time: 1098 ms
-00:00:59.324 [thread-pool-2] INFO com.victor.fasttask.DagGraphManager - task done: 14
-00:00:59.325 [Test worker] INFO com.victor.fasttask.TaskTest - all take time: 7861 ms
-00:00:59.351 [Test worker] INFO com.victor.fasttask.TaskTest - dataContext: {"data":{"11":"任务11","12":"任务12","13":"任务13","14":"任务14","1":"任务1","2":"任务2","3":"任务3","4":"任务4","5":"任务5","6":"任务6","7":"任务7","8":"任务8","9":"任务9","10":"任务10"},"executeErrorLog":{}}
-BUILD SUCCESSFUL in 13s
+15:43:42.544 [Test worker] INFO com.victor.fasttask.GraphPrintUtil - ==================================== Fast Task Graph(14) ====================================
+15:43:42.552 [Test worker] INFO com.victor.fasttask.GraphPrintUtil -  (1:READY)  (6:READY) 
+15:43:42.552 [Test worker] INFO com.victor.fasttask.GraphPrintUtil -  (2:READY,1)  (3:READY,1)  (9:READY,6)  (10:READY,6) 
+15:43:42.552 [Test worker] INFO com.victor.fasttask.GraphPrintUtil -  (11:READY,9)  (12:READY,10)  (4:READY,2)  (5:READY,3,9) 
+15:43:42.552 [Test worker] INFO com.victor.fasttask.GraphPrintUtil -  (13:READY,4,10)  (14:READY,11,12)  (7:READY,5) 
+15:43:42.552 [Test worker] INFO com.victor.fasttask.GraphPrintUtil -  (8:READY,6,7) 
+15:43:42.552 [Test worker] INFO com.victor.fasttask.GraphPrintUtil - ==================================== Fast Task Graph ====================================
+15:43:42.553 [thread-pool-0] DEBUG com.victor.fasttask.DagGraphManager - task start: 1
+15:43:42.553 [thread-pool-1] DEBUG com.victor.fasttask.DagGraphManager - task start: 6
+15:43:43.465 [thread-pool-0] INFO com.victor.fasttask.TaskTest - 1 take time: 912 ms
+15:43:43.465 [thread-pool-0] DEBUG com.victor.fasttask.DagGraphManager - task done: 1
+15:43:43.465 [thread-pool-0] DEBUG com.victor.fasttask.DagGraphManager - task start: 2
+15:43:44.107 [thread-pool-1] INFO com.victor.fasttask.TaskTest - 6 take time: 1554 ms
+15:43:44.107 [thread-pool-1] DEBUG com.victor.fasttask.DagGraphManager - task done: 6
+15:43:44.107 [thread-pool-1] DEBUG com.victor.fasttask.DagGraphManager - task start: 9
+15:43:45.281 [thread-pool-1] INFO com.victor.fasttask.TaskTest - 9 take time: 1174 ms
+15:43:45.281 [thread-pool-1] DEBUG com.victor.fasttask.DagGraphManager - task done: 9
+15:43:45.281 [thread-pool-1] DEBUG com.victor.fasttask.DagGraphManager - task start: 11
+15:43:45.653 [thread-pool-1] INFO com.victor.fasttask.TaskTest - 11 take time: 372 ms
+15:43:45.653 [thread-pool-1] DEBUG com.victor.fasttask.DagGraphManager - task done: 11
+15:43:45.653 [thread-pool-2] DEBUG com.victor.fasttask.DagGraphManager - task start: 10
+15:43:46.019 [thread-pool-0] INFO com.victor.fasttask.TaskTest - 2 take time: 2554 ms
+15:43:46.019 [thread-pool-0] DEBUG com.victor.fasttask.DagGraphManager - task done: 2
+15:43:46.019 [thread-pool-0] DEBUG com.victor.fasttask.DagGraphManager - task start: 4
+15:43:46.277 [thread-pool-0] INFO com.victor.fasttask.TaskTest - 4 take time: 258 ms
+15:43:46.277 [thread-pool-0] DEBUG com.victor.fasttask.DagGraphManager - task done: 4
+15:43:46.279 [thread-pool-3] DEBUG com.victor.fasttask.DagGraphManager - task start: 3
+15:43:46.843 [thread-pool-2] INFO com.victor.fasttask.TaskTest - 10 take time: 1190 ms
+15:43:46.843 [thread-pool-2] DEBUG com.victor.fasttask.DagGraphManager - task done: 10
+15:43:46.843 [thread-pool-2] DEBUG com.victor.fasttask.DagGraphManager - task start: 12
+15:43:47.462 [thread-pool-2] INFO com.victor.fasttask.TaskTest - 12 take time: 619 ms
+15:43:47.462 [thread-pool-2] DEBUG com.victor.fasttask.DagGraphManager - task done: 12
+15:43:47.462 [thread-pool-2] DEBUG com.victor.fasttask.DagGraphManager - task start: 14
+15:43:48.460 [thread-pool-3] INFO com.victor.fasttask.TaskTest - 3 take time: 2181 ms
+15:43:48.460 [thread-pool-3] DEBUG com.victor.fasttask.DagGraphManager - task done: 3
+15:43:48.460 [thread-pool-3] DEBUG com.victor.fasttask.DagGraphManager - task start: 5
+15:43:49.743 [thread-pool-2] INFO com.victor.fasttask.TaskTest - 14 take time: 2281 ms
+15:43:49.743 [thread-pool-2] DEBUG com.victor.fasttask.DagGraphManager - task done: 14
+15:43:49.743 [thread-pool-4] DEBUG com.victor.fasttask.DagGraphManager - task start: 13
+15:43:50.935 [thread-pool-4] INFO com.victor.fasttask.TaskTest - 13 take time: 1192 ms
+15:43:50.935 [thread-pool-4] DEBUG com.victor.fasttask.DagGraphManager - task done: 13
+15:43:51.372 [thread-pool-3] INFO com.victor.fasttask.TaskTest - 5 take time: 2912 ms
+15:43:51.372 [thread-pool-3] DEBUG com.victor.fasttask.DagGraphManager - task done: 5
+15:43:51.372 [thread-pool-3] DEBUG com.victor.fasttask.DagGraphManager - task start: 7
+15:43:52.580 [thread-pool-3] INFO com.victor.fasttask.TaskTest - 7 take time: 1208 ms
+15:43:52.580 [thread-pool-3] DEBUG com.victor.fasttask.DagGraphManager - task done: 7
+15:43:52.580 [thread-pool-3] DEBUG com.victor.fasttask.DagGraphManager - task start: 8
+15:43:54.978 [thread-pool-3] INFO com.victor.fasttask.TaskTest - 8 take time: 2398 ms
+15:43:54.978 [thread-pool-3] DEBUG com.victor.fasttask.DagGraphManager - task done: 8
+15:43:54.978 [Test worker] INFO com.victor.fasttask.GraphPrintUtil - ==================================== Fast Task Graph(0) ====================================
+15:43:54.978 [Test worker] INFO com.victor.fasttask.GraphPrintUtil - All Done.
+15:43:54.978 [Test worker] INFO com.victor.fasttask.GraphPrintUtil - ==================================== Fast Task Graph ====================================
+15:43:54.978 [Test worker] INFO com.victor.fasttask.TaskTest - total take time: 12448 ms
+15:43:55.004 [Test worker] INFO com.victor.fasttask.TaskTest - dataContext: {"data":{"11":"任务11","12":"任务12","13":"任务13","14":"任务14","1":"任务1","2":"任务2","3":"任务3","4":"任务4","5":"任务5","6":"任务6","7":"任务7","8":"任务8","9":"任务9","10":"任务10"},"executeErrorLog":{}}
+BUILD SUCCESSFUL in 31s
 3 actionable tasks: 3 executed
-0:00:59: Task execution finished ':test --tests "com.victor.fasttask.TaskTest.doJob"'.
+15:43:55: Execution finished ':test --tests "com.victor.fasttask.TaskTest.test"'.
 
 
-````
-
-Print Graph
-
-````log
-==================================== Graph ====================================
- (1:READY)  (6:READY) 
- (2:READY,1)  (3:READY,1)  (9:READY,6)  (10:READY,6) 
- (11:READY,9)  (12:READY,10)  (4:READY,2)  (5:READY,3,9) 
- (13:READY,4,10)  (14:READY,11,12)  (7:READY,5) 
- (8:READY,6,7) 
-==================================== Graph ====================================
 ````
 
 More detail @see com/victor/fasttask/Test.java
