@@ -87,11 +87,12 @@ public final class DagGraphManager {
                     logger.debug("task done: {}", task.getId());
                 }
                 AbstractTask nextExecutableNode = getNextExecutableNode(task);
+                // 移除节点
+                removeTask(task);
+                // 执行下个节点
                 if (nextExecutableNode != null) {
                     doJob(nextExecutableNode);
                 }
-                // 移除节点
-                removeTask(task);
             } catch (Exception e) {
                 logger.error("do task: {} fail, ", task.getId(), e);
                 dataContext.getExecuteErrorLog().put(task.getId(), e.getMessage());
