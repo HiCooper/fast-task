@@ -86,12 +86,12 @@ public final class DagGraphManager {
                 if (logger.isDebugEnabled()) {
                     logger.debug("task done: {}", task.getId());
                 }
+                // 移除节点
+                removeTask(task);
                 AbstractTask nextExecutableNode = getNextExecutableNode(task);
                 if (nextExecutableNode != null) {
                     doJob(nextExecutableNode);
                 }
-                // 移除节点
-                removeTask(task);
             } catch (Exception e) {
                 logger.error("do task: {} fail, ", task.getId(), e);
                 dataContext.getExecuteErrorLog().put(task.getId(), e.getMessage());
