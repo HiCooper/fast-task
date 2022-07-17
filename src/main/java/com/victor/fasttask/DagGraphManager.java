@@ -86,7 +86,7 @@ public final class DagGraphManager {
                 if (logger.isDebugEnabled()) {
                     logger.debug("task done: {}", task.getId());
                 }
-                AbstractTask nextExecutableNode = getFirstNextExecutableNode(task);
+                AbstractTask nextExecutableNode = getNextExecutableNode(task);
                 if (nextExecutableNode != null) {
                     doJob(nextExecutableNode);
                 }
@@ -98,10 +98,7 @@ public final class DagGraphManager {
                 task.setStatus(AbstractTask.TaskStatus.FAIL);
                 // 判断失败是否继续，不继续，将其他任务状态设置为cancel, 抛出异常
                 if (!task.isFailContinue()) {
-                    logger.error(
-                        "do task:{} fail, failContinue=false, other task will be set cancel status, then end the "
-                            + "graph execute!",
-                        task.getId());
+                    logger.error("do task:{} fail, failContinue=false, other task will be set cancel status, then end the graph execute!", task.getId());
                     dagGraph.nodes().forEach(node -> node.setStatus(AbstractTask.TaskStatus.CANCEL));
                     task.setStatus(AbstractTask.TaskStatus.FAIL);
                     throw e;
@@ -117,16 +114,18 @@ public final class DagGraphManager {
 
     /**
      * 获取下个可直接执行节点
-     * 找到第一个 仅有一个入度 的下个节点
+     * 当前节点只有一个出度，且下个节点只有一个入度，返回下个节点
      *
-     * @param task 当前节点
+     * @param task
      * @return
      */
-    private AbstractTask getFirstNextExecutableNode(AbstractTask task) {
+    private AbstractTask getNextExecutableNode(AbstractTask task) {
         Set<AbstractTask> successors = dagGraph.successors(task);
-        if (!successors.isEmpty()) {
-            return successors.stream().filter(s -> dagGraph.inDegree(s) == 1).findFirst().orElse(
-                null);
+        if (successors.size() == 1) {
+            AbstractTask nextNode = successors.stream().findFirst().orElse(null);
+            if (dagGraph.inDegree(nextNode) == 1) {
+                return nextNode;
+            }
         }
         return null;
     }
@@ -149,7 +148,6 @@ public final class DagGraphManager {
      */
     private boolean isDone() {
         return getZeroInNodeList().isEmpty() || getZeroInNodeList().stream().allMatch(
-            s -> s.getStatus().equals(AbstractTask.TaskStatus.FAIL) || s.getStatus()
-                .equals(AbstractTask.TaskStatus.CANCEL));
+                s -> s.getStatus().equals(AbstractTask.TaskStatus.FAIL) || s.getStatus().equals(AbstractTask.TaskStatus.CANCEL));
     }
 }
