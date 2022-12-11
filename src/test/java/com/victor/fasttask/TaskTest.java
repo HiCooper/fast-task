@@ -102,9 +102,9 @@ class TaskTest {
             long start = System.currentTimeMillis();
             try {
                 Thread.sleep(new Random().nextInt(3000));
-//                if (new Random().nextInt(11) > 9) {
-//                    throw new RuntimeException("some thing bad..." + getId());
-//                }
+                if (new Random().nextInt(11) > 9) {
+                    throw new RuntimeException("some thing bad..." + getId());
+                }
                 // do something amazing
                 dataContext.getData().put(getId(), getName());
             } catch (InterruptedException e) {

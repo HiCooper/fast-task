@@ -66,9 +66,10 @@ public class GraphPrintUtil {
     }
 
     private static String getNodeDesc(AbstractTask rootNode, DataContext.ExecuteTimeInfo executeTimeInfo) {
+        String result = rootNode.getId() + "_" + rootNode.getStatus().name();
         if (executeTimeInfo != null) {
-            return rootNode.getId() + "_" + executeTimeInfo.getCostTime();
+            return result + "_" + executeTimeInfo.getCostTime();
         }
-        return rootNode.getId();
+        return result;
     }
 }
