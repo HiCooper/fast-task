@@ -22,6 +22,11 @@ public final class DataContext {
      */
     private final Map<String, String> executeErrorLog = new ConcurrentHashMap<>();
 
+    /**
+     * 任务执行耗时
+     */
+    private final Map<String, ExecuteTimeInfo> taskExecuteTimeMap = new ConcurrentHashMap<>();
+
     public Map<String, Object> getData() {
         return data;
     }
@@ -36,5 +41,45 @@ public final class DataContext {
 
     public String getErrorLogByKey(String taskKey) {
         return executeErrorLog.get(taskKey);
+    }
+
+    public Map<String, ExecuteTimeInfo> getTaskExecuteTimeMap() {
+        return taskExecuteTimeMap;
+    }
+
+    public static class ExecuteTimeInfo {
+        private long startTime;
+        private long endTime;
+        private long costTime;
+
+        public ExecuteTimeInfo(long startTime, long endTime) {
+            this.startTime = startTime;
+            this.endTime = endTime;
+            this.costTime = endTime - startTime;
+        }
+
+        public long getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(long startTime) {
+            this.startTime = startTime;
+        }
+
+        public long getEndTime() {
+            return endTime;
+        }
+
+        public void setEndTime(long endTime) {
+            this.endTime = endTime;
+        }
+
+        public long getCostTime() {
+            return costTime;
+        }
+
+        public void setCostTime(long costTime) {
+            this.costTime = costTime;
+        }
     }
 }

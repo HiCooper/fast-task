@@ -1,155 +1,74 @@
 package com.victor.fasttask;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.google.common.graph.MutableGraph;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author Victor.
  * @date 2021/9/3
  */
+
 public class GraphPrintUtil {
     private static final Logger logger = LoggerFactory.getLogger(GraphPrintUtil.class);
 
-    public static void print(MutableGraph<AbstractTask> dagGraph) {
-        Set<AbstractTask> nodes = dagGraph.nodes();
-
-        logger.info("==================================== Fast Task Graph({}) ====================================",
-                nodes.size());
-
-        if (!nodes.isEmpty()) {
-            List<AbstractTask> rootNodes = dagGraph.nodes().stream().filter(s -> s != null && dagGraph.inDegree(s) == 0)
-                    .collect(Collectors.toList());
-
-            List<Line> lines = new ArrayList<>();
-
-            process(dagGraph, rootNodes, lines);
-
-            resetLines(lines);
-
-            lines.forEach(Line::print);
-        } else {
-            logger.info("All Done.");
-        }
-
-        logger.info("==================================== Fast Task Graph ====================================");
+    private GraphPrintUtil() {
     }
 
-    private static void resetLines(List<Line> lines) {
-        for (int i = lines.size() - 1; i >= 0; i--) {
-            Line line = lines.get(i);
-            List<Node> lineNodes = new ArrayList<>(line.nodesMap.values());
-            // 检查在其他行是否存在
-            if (i > 1) {
-                checkExistThenRemove(lines, i - 1, lineNodes);
-            }
+    public static void printPlantUml(Set<AbstractTask> allTaskSet, Map<AbstractTask, Set<AbstractTask>> nodeMap, Map<String, DataContext.ExecuteTimeInfo> taskExecuteTimeMap) {
+        if (allTaskSet == null || allTaskSet.isEmpty() || nodeMap == null) {
+            return;
+        }
+        // 有入度节点，边关系，node1 -> node2 (2依赖1)
+        List<Map<AbstractTask, AbstractTask>> edgeList = Lists.newArrayList();
+        try {
+            nodeMap.forEach((nodeU, nodeVs) -> nodeVs.forEach(nodeV -> {
+                Map<AbstractTask, AbstractTask> line = Maps.newHashMap();
+                line.put(nodeV, nodeU);
+                edgeList.add(line);
+            }));
+            Set<AbstractTask> rootNodes = allTaskSet.stream()
+                    .filter(node -> !nodeMap.containsKey(node))
+                    .collect(Collectors.toSet());
+            printUml(rootNodes, edgeList, taskExecuteTimeMap);
+        } catch (Exception e) {
+            logger.error("printPlantUml error, msg:{}", e.getMessage(), e);
         }
     }
 
-    private static void checkExistThenRemove(List<Line> lines, int end, List<Node> lineNodes) {
-        List<String> currentLineNodeIds = lineNodes.stream().map(Node::getId).collect(Collectors.toList());
-        for (int i = 0; i <= end; i++) {
-            Line line = lines.get(i);
-            line.nodesMap.values().removeIf(s -> currentLineNodeIds.contains(s.getId()));
+    private static void printUml(Set<AbstractTask> rootNodes, List<Map<AbstractTask, AbstractTask>> edgeList, Map<String, DataContext.ExecuteTimeInfo> taskExecuteTimeMap) {
+        StringBuilder plantUmlBuilder = new StringBuilder();
+        plantUmlBuilder.append("======== Graph Start(PlantUML) ========\n");
+        plantUmlBuilder.append("@startuml\n");
+
+        rootNodes.forEach(rootNode -> plantUmlBuilder
+                .append("(*) --> ")
+                .append(getNodeDesc(rootNode, taskExecuteTimeMap.get(rootNode.getId())))
+                .append("\n"));
+
+        edgeList.forEach(edge -> edge.forEach((key, val) -> plantUmlBuilder
+                .append(getNodeDesc(key, taskExecuteTimeMap.get(key.getId())))
+                .append(" --> ")
+                .append(getNodeDesc(val, taskExecuteTimeMap.get(val.getId())))
+                .append("\n")));
+
+        plantUmlBuilder.append("@enduml\n");
+        plantUmlBuilder.append("======== Graph End(PlantUML) ========\n");
+        if (logger.isInfoEnabled()) {
+            logger.info(plantUmlBuilder.toString());
         }
     }
 
-    private static void process(MutableGraph<AbstractTask> dagGraph, List<AbstractTask> nodes, List<Line> lines) {
-        Line line = new Line();
-        List<AbstractTask> nextLineNodes = new ArrayList<>();
-        for (AbstractTask r : nodes) {
-            String id = r.getId();
-            String data = getNodeData(r);
-            Node n = new Node(id, data);
-            line.nodesMap.put(id, n);
-            Set<AbstractTask> successors = dagGraph.successors(r);
-            nextLineNodes.addAll(successors);
+    private static String getNodeDesc(AbstractTask rootNode, DataContext.ExecuteTimeInfo executeTimeInfo) {
+        if (executeTimeInfo != null) {
+            return rootNode.getId() + "_" + executeTimeInfo.getCostTime();
         }
-        lines.add(line);
-        if (!nextLineNodes.isEmpty()) {
-            process(dagGraph, nextLineNodes, lines);
-        }
+        return rootNode.getId();
     }
-
-    private static String getNodeData(AbstractTask r) {
-        String join = String.join(",", r.getDependencies());
-        if (!join.equals("")) {
-            join = "," + join;
-        }
-        return String.format("(%s:%s%s)", r.getId(), r.getStatus().name(), join);
-    }
-
-    private static class Line {
-
-        Map<String, Node> nodesMap = new HashMap<>();
-
-        public void print() {
-            List<Node> nodes = new ArrayList<>(nodesMap.values());
-            printNodes(nodes);
-        }
-
-        private void printNodes(List<Node> nodes) {
-            if (nodes == null || nodes.isEmpty()) {
-                return;
-            }
-            StringBuilder lineStr = new StringBuilder();
-            for (Node node : nodes) {
-                lineStr.append(node.prefix).append(node.data).append(node.suffix);
-            }
-            logger.info(lineStr.toString());
-        }
-    }
-
-    private static class Node {
-
-        private String id;
-        private String prefix = " ";
-        private String suffix = " ";
-        private String data;
-
-        Node(String id, String data) {
-            this.id = id;
-            this.data = data;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getPrefix() {
-            return prefix;
-        }
-
-        public void setPrefix(String prefix) {
-            this.prefix = prefix;
-        }
-
-        public String getSuffix() {
-            return suffix;
-        }
-
-        public void setSuffix(String suffix) {
-            this.suffix = suffix;
-        }
-
-        public String getData() {
-            return data;
-        }
-
-        public void setData(String data) {
-            this.data = data;
-        }
-    }
-
 }

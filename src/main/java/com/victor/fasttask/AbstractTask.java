@@ -1,7 +1,7 @@
 package com.victor.fasttask;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Victor.
@@ -23,12 +23,24 @@ public abstract class AbstractTask {
      */
     private Object data;
     /**
-     * 任务执行状态，默认就绪
+     * 任务提交执行时间
+     * 提交，并不会马上执行，等待线程池调度
      */
-    private volatile TaskStatus status = TaskStatus.READY;
+    private long submitExecuteTime;
 
-    AbstractTask(String taskId, boolean failContinue) {
+    /**
+     * task执行 超时时间
+     */
+    private long timeout;
+
+    /**
+     * 任务执行状态，默认INIT
+     */
+    private volatile TaskStatus status = TaskStatus.INIT;
+
+    AbstractTask(String taskId, long timeout, boolean failContinue) {
         this.taskId = taskId;
+        this.timeout = timeout;
         this.failContinue = failContinue;
     }
 
@@ -73,6 +85,22 @@ public abstract class AbstractTask {
         return this.taskId;
     }
 
+    public long getSubmitExecuteTime() {
+        return submitExecuteTime;
+    }
+
+    public void setSubmitExecuteTime(long submitExecuteTime) {
+        this.submitExecuteTime = submitExecuteTime;
+    }
+
+    public long getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
+    }
+
     /**
      * node 可执行动作
      */
@@ -93,7 +121,7 @@ public abstract class AbstractTask {
      *
      * @return taskId list
      */
-    abstract List<String> getDependencies();
+    abstract Set<AbstractTask> getDependencies();
 
     @Override
     public boolean equals(Object o) {
@@ -114,12 +142,13 @@ public abstract class AbstractTask {
 
     public enum TaskStatus {
         /**
-         * 就绪，运行，失败，完成
+         * 初始化，已提交，运行中，失败（超时，异常），取消（其他关键节点失败，后续任务取消），完成
          */
-        READY,
+        INIT,
+        SUBMIT,
         RUNNING,
         FAIL,
         CANCEL,
-        DONE;
+        DONE
     }
 }

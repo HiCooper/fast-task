@@ -1,20 +1,17 @@
 package com.victor.fasttask;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.*;
 
 /**
  * @author Victor.
@@ -33,24 +30,20 @@ class TaskTest {
 
     @Test
     void testBindJob() {
-        TestTask task1 = new TestTask("任务1", "1", Lists.newArrayList(), true);
-        TestTask task2 = new TestTask("任务2", "2", Lists.newArrayList("1"), true);
-        TestTask task3 = new TestTask("任务3", "3", Lists.newArrayList("2"), true);
-        TestTask task4 = new TestTask("任务4", "4", Lists.newArrayList("3"), true);
-        TestTask task5 = new TestTask("任务5", "5", Lists.newArrayList("4"), true);
-        TestTask task6 = new TestTask("任务6", "6", Lists.newArrayList("5"), true);
+        TestTask task1 = new TestTask("任务1", "1", Sets.newHashSet(), true);
+        TestTask task2 = new TestTask("任务2", "2", Sets.newHashSet(task1), true);
+        TestTask task3 = new TestTask("任务3", "3", Sets.newHashSet(task2), true);
+        TestTask task4 = new TestTask("任务4", "4", Sets.newHashSet(task3), true);
+        TestTask task5 = new TestTask("任务5", "5", Sets.newHashSet(task4), true);
+        TestTask task6 = new TestTask("任务6", "6", Sets.newHashSet(task5), true);
 
         List<TestTask> testTaskList = new ArrayList<>();
-        testTaskList.add(task1);
-        testTaskList.add(task2);
-        testTaskList.add(task3);
-        testTaskList.add(task4);
-        testTaskList.add(task5);
+
         testTaskList.add(task6);
 
         DataContext dataContext = new DataContext();
         long start = System.currentTimeMillis();
-        FastTaskExecutor.execute(testTaskList, dataContext, threadPoolExecutor);
+        FastTaskExecutor.execute(testTaskList, dataContext, threadPoolExecutor, true);
         long end = System.currentTimeMillis();
         logger.info("total take time: {} ms", (end - start));
         logger.info("dataContext: {}", new Gson().toJson(dataContext));
@@ -59,37 +52,30 @@ class TaskTest {
     @Test
     void test() {
         List<TestTask> testTaskList = new ArrayList<>();
-        TestTask task1 = new TestTask("任务1", "1", Lists.newArrayList(), true);
-        TestTask task2 = new TestTask("任务2", "2", Lists.newArrayList("1"), true);
-        TestTask task3 = new TestTask("任务3", "3", Lists.newArrayList("1"), false);
-        TestTask task4 = new TestTask("任务4", "4", Lists.newArrayList("2"), true);
-        TestTask task5 = new TestTask("任务5", "5", Lists.newArrayList("3", "9"), true);
-        TestTask task6 = new TestTask("任务6", "6", Lists.newArrayList(), true);
-        TestTask task7 = new TestTask("任务7", "7", Lists.newArrayList("5"), true);
-        TestTask task8 = new TestTask("任务8", "8", Lists.newArrayList("6", "7"), true);
-        TestTask task9 = new TestTask("任务9", "9", Lists.newArrayList("6"), true);
-        TestTask task10 = new TestTask("任务10", "10", Lists.newArrayList("6"), true);
-        TestTask task11 = new TestTask("任务11", "11", Lists.newArrayList("9"), true);
-        TestTask task12 = new TestTask("任务12", "12", Lists.newArrayList("10"), true);
-        TestTask task13 = new TestTask("任务13", "13", Lists.newArrayList("4", "10"), true);
-        TestTask task14 = new TestTask("任务14", "14", Lists.newArrayList("11", "12"), true);
-        testTaskList.add(task1);
-        testTaskList.add(task2);
-        testTaskList.add(task3);
-        testTaskList.add(task4);
-        testTaskList.add(task5);
-        testTaskList.add(task6);
-        testTaskList.add(task7);
+        TestTask task1 = new TestTask("任务1", "1", Sets.newHashSet(), true);
+        TestTask task2 = new TestTask("任务2", "2", Sets.newHashSet(task1), true);
+        TestTask task3 = new TestTask("任务3", "3", Sets.newHashSet(task1), false);
+        TestTask task4 = new TestTask("任务4", "4", Sets.newHashSet(task2), true);
+        TestTask task5 = new TestTask("任务5", "5", Sets.newHashSet(task3), true);
+        TestTask task6 = new TestTask("任务6", "6", Sets.newHashSet(), true);
+        TestTask task7 = new TestTask("任务7", "7", Sets.newHashSet(task5), true);
+        TestTask task8 = new TestTask("任务8", "8", Sets.newHashSet(task6, task7), true);
+        TestTask task9 = new TestTask("任务9", "9", Sets.newHashSet(task6), true);
+        TestTask task10 = new TestTask("任务10", "10", Sets.newHashSet(task6), true);
+        TestTask task11 = new TestTask("任务11", "11", Sets.newHashSet(task9), true);
+        TestTask task12 = new TestTask("任务12", "12", Sets.newHashSet(task10), true);
+        TestTask task13 = new TestTask("任务13", "13", Sets.newHashSet(task4, task10), true);
+        TestTask task14 = new TestTask("任务14", "14", Sets.newHashSet(task11, task12), true);
+        task5.getDependencies().add(task9);
+
         testTaskList.add(task8);
         testTaskList.add(task9);
-        testTaskList.add(task10);
-        testTaskList.add(task11);
-        testTaskList.add(task12);
         testTaskList.add(task13);
         testTaskList.add(task14);
+
         DataContext dataContext = new DataContext();
         long start = System.currentTimeMillis();
-        FastTaskExecutor.execute(testTaskList, dataContext, threadPoolExecutor);
+        FastTaskExecutor.execute(testTaskList, dataContext, threadPoolExecutor, true);
         long end = System.currentTimeMillis();
         logger.info("total take time: {} ms", (end - start));
         logger.info("dataContext: {}", new Gson().toJson(dataContext));
@@ -97,12 +83,12 @@ class TaskTest {
 
     public static class TestTask extends AbstractTask {
 
-        private final List<String> dependencies;
+        private final Set<AbstractTask> dependencies;
 
         private final String name;
 
-        public TestTask(String name, String taskId, List<String> dependencies, boolean failContinue) {
-            super(taskId, failContinue);
+        public TestTask(String name, String taskId, Set<AbstractTask> dependencies, boolean failContinue) {
+            super(taskId, 3000, failContinue);
             this.name = name;
             this.dependencies = dependencies;
         }
@@ -129,7 +115,7 @@ class TaskTest {
         }
 
         @Override
-        public List<String> getDependencies() {
+        public Set<AbstractTask> getDependencies() {
             return this.dependencies;
         }
     }
